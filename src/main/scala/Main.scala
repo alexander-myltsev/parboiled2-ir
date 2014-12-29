@@ -46,10 +46,10 @@ trait ParboiledOpsExp extends BaseExp with ParboiledOps {
 
 abstract class Runner extends ParboiledOpsExp {
   val parser: ParserDef
-  val input: String
-  var cursor = 0
 
-  def parse(): Boolean = {
+  def parse(input: String): Boolean = {
+    var cursor = 0
+
     val startRule = parser.rules(0).asInstanceOf[RuleDefinitionDef]
     def matchRule(r: Rep[Rule]): Boolean = r match {
       case StringLiteral(Const(str)) => (str.length + cursor <= input.length) &&
