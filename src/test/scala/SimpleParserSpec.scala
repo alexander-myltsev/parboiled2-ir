@@ -1,18 +1,35 @@
 import org.scalatest.{MustMatchers, WordSpec}
 
 class SimpleParserSpec extends WordSpec with MustMatchers {
+  "SimpleStringParser" must {
+    class SimpleStringParser(val input: String) extends Runner {
+      val parser =
+        ParserDef("SimpleParser", Seq(
+          RuleDefinitionDef("", Seq(), StringLiteral("ab"))
+        ))
+    }
 
-  class SimpleParserRunner(val input: String) extends Runner {
-    val parser =
-      ParserDef("SimpleParser", Seq(
-        RuleDefinitionDef("abRule", Seq(), StringLiteral("ab"))
-      ))
+    "parse correctly" in {
+      new SimpleStringParser("ab").parse() mustBe true
+      new SimpleStringParser("ac").parse() mustBe false
+    }
   }
 
-  "SimpleParser" must {
+  "SimpleSeqFirstOfParser" must {
+    class SimpleSeqFirstOfParser(val input: String) extends Runner {
+      // rule { (ab ~ cd) | ef }
+
+      val parser =
+        ParserDef("SimpleParser", Seq(
+          RuleDefinitionDef("", Seq(), FirstOf(Sequence(StringLiteral("ab"), StringLiteral("cd")), StringLiteral("ef")))
+        ))
+    }
+
     "parse correctly" in {
-      new SimpleParserRunner("ab").parse() mustBe true
-      new SimpleParserRunner("ac").parse() mustBe false
+      new SimpleSeqFirstOfParser("abcd").parse() mustBe true
+      new SimpleSeqFirstOfParser("ef").parse() mustBe true
+      new SimpleSeqFirstOfParser("abf").parse() mustBe false
+      new SimpleSeqFirstOfParser("e").parse() mustBe false
     }
   }
 }

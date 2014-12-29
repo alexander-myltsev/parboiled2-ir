@@ -36,10 +36,12 @@ trait ParboiledOpsExp extends BaseExp with ParboiledOps {
   case class RuleDefinitionDef(name: Rep[String], argNames: Seq[Rep[String]], body: Rep[Rule]) extends Def[RuleDefinition]
 
   case class StringLiteral(str: Rep[String]) extends Def[Rule]
+  case class Sequence(lhs: Rep[Rule], rhs: Rep[Rule]) extends Def[Rule]
+  case class FirstOf(lhs: Rep[Rule], rhs: Rep[Rule]) extends Def[Rule]
 
-  def create_parser(name: Rep[String], rules: Seq[Rep[RuleDefinition]]): Rep[Parser] = ??? // ParserDef(name, rules)
-  def infix_~(lhs: Rep[Rule], rhs: Rep[Rule]): Rep[Rule] = ??? // Sequence(lhs, rhs)
-  def infix_|(lhs: Rep[Rule], rhs: Rep[Rule]): Rep[Rule] = ??? // FirstOf(lhs, rhs)
+  def create_parser(name: Rep[String], rules: Seq[Rep[RuleDefinition]]): Rep[Parser] = ParserDef(name, rules)
+  def infix_~(lhs: Rep[Rule], rhs: Rep[Rule]): Rep[Rule] = Sequence(lhs, rhs)
+  def infix_|(lhs: Rep[Rule], rhs: Rep[Rule]): Rep[Rule] = FirstOf(lhs, rhs)
 }
 
 abstract class Runner extends ParboiledOpsExp {
@@ -49,10 +51,15 @@ abstract class Runner extends ParboiledOpsExp {
 
   def parse(): Boolean = {
     val startRule = parser.rules(0).asInstanceOf[RuleDefinitionDef]
-    startRule.body match {
+    def matchRule(r: Rep[Rule]): Boolean = r match {
       case StringLiteral(Const(str)) => (str.length + cursor <= input.length) &&
         (input.substring(cursor, cursor + str.length) == str) && { cursor += str.length; true }
+      case Sequence(lhs, rhs) => matchRule(lhs) && matchRule(rhs)
+      case FirstOf(lhs, rhs) =>
+        val cur = cursor
+        matchRule(lhs) || { cursor = cur; matchRule(rhs) }
       case _ => ???
     }
+    matchRule(startRule.body)
   }
 }
