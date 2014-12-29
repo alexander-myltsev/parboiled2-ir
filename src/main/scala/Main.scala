@@ -38,6 +38,7 @@ trait ParboiledOpsExp extends BaseExp with ParboiledOps {
   case class StringLiteral(str: Rep[String]) extends Def[Rule]
   case class Sequence(lhs: Rep[Rule], rhs: Rep[Rule]) extends Def[Rule]
   case class FirstOf(lhs: Rep[Rule], rhs: Rep[Rule]) extends Def[Rule]
+  case class RuleCall(callingRuleName: Rep[String]) extends Def[Rule]
 
   def create_parser(name: Rep[String], rules: Seq[Rep[RuleDefinition]]): Rep[Parser] = ParserDef(name, rules)
   def infix_~(lhs: Rep[Rule], rhs: Rep[Rule]): Rep[Rule] = Sequence(lhs, rhs)
@@ -54,10 +55,17 @@ abstract class Runner extends ParboiledOpsExp {
     def matchRule(r: Rep[Rule]): Boolean = r match {
       case StringLiteral(Const(str)) => (str.length + cursor <= input.length) &&
         (input.substring(cursor, cursor + str.length) == str) && { cursor += str.length; true }
+
       case Sequence(lhs, rhs) => matchRule(lhs) && matchRule(rhs)
-      case FirstOf(lhs, rhs) =>
-        val cur = cursor
-        matchRule(lhs) || { cursor = cur; matchRule(rhs) }
+
+      case FirstOf(lhs, rhs) => val cur = cursor; matchRule(lhs) || { cursor = cur; matchRule(rhs) }
+
+      case RuleCall(Const(callingRuleName)) =>
+        parser.rules.find { case RuleDefinitionDef(Const(name), _, _) => callingRuleName == name } match {
+          case Some(RuleDefinitionDef(_, _, body)) => matchRule(body)
+          case None => throw new Exception("Undefined rule to call")
+        }
+
       case _ => ???
     }
     matchRule(startRule.body)
