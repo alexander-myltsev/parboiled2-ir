@@ -1,6 +1,14 @@
 import org.scalatest.{MustMatchers, WordSpecLike}
 
 class RuleInlinerSpec extends RunnerOptInliner with WordSpecLike with MustMatchers {
+  /*
+  class RuleInlinerParser {
+    def abc = rule { ((a() ~ b()) ~ c()) }
+    def a = rule { "a" }
+    def b = rule { "b" }
+    def c = rule { "c" }
+  }
+  */
   override val parser =
     ParserDef("RuleInliner", Seq(
       RuleDefinitionDef("abc", Seq(), Sequence(Sequence(RuleCall("a"), RuleCall("b")), RuleCall("c"))),

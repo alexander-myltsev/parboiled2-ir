@@ -25,17 +25,19 @@ abstract class Runner extends ParboiledOpsExp {
     matchRule(startRule.body)
   }
 
-  def toPseudoScala[T](exp: Def[T]): String = exp match {
+  private def print[T](exp: Def[T]): String = exp match {
     case ParserDef(Const(name), rules) =>
       s"""class ${name}Parser {
-         |  ${rules.map(toPseudoScala).mkString("\n  ")}
-         |}
-       """.stripMargin
+         |  ${rules.map(print).mkString("\n  ")}
+         |}""".stripMargin
     case RuleDefinitionDef(Const(name), argNames, body) =>
-      s"def $name = rule { ${toPseudoScala(body)} }"
+      s"def $name = rule { ${print(body)} }"
     case StringLiteral(Const(str)) => s""""$str""""
-    case Sequence(lhs, rhs) => s"(${toPseudoScala(lhs)} ~ ${toPseudoScala(rhs)})"
-    case FirstOf(lhs, rhs) => s"(${toPseudoScala(lhs)} ~ ${toPseudoScala(rhs)})"
+    case Sequence(lhs, rhs) => s"(${print(lhs)} ~ ${print(rhs)})"
+    case FirstOf(lhs, rhs) => s"(${print(lhs)} ~ ${print(rhs)})"
     case RuleCall(Const(callingRuleName)) => s"$callingRuleName()"
   }
+
+  def parserPseudoScala(): String = print(parser)
+  def optimizedParserPseudoScala(): String = print(optimizedParser)
 }
