@@ -71,6 +71,20 @@ abstract class Runner extends ParboiledOpsExp {
     }
     matchRule(startRule.body)
   }
+
+  def toPseudoScala[T](exp: Def[T]): String = exp match {
+    case ParserDef(Const(name), rules) =>
+      s"""class ${name}Parser {
+         |  ${rules.map(toPseudoScala).mkString("\n  ")}
+         |}
+       """.stripMargin
+    case RuleDefinitionDef(Const(name), argNames, body) =>
+      s"def $name = rule { ${toPseudoScala(body)} }"
+    case StringLiteral(Const(str)) => s""""$str""""
+    case Sequence(lhs, rhs) => s"(${toPseudoScala(lhs)} ~ ${toPseudoScala(rhs)})"
+    case FirstOf(lhs, rhs) => s"(${toPseudoScala(lhs)} ~ ${toPseudoScala(rhs)})"
+    case RuleCall(Const(callingRuleName)) => s"$callingRuleName()"
+  }
 }
 
 abstract class RunnerOpt extends Runner {
