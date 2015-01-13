@@ -38,7 +38,8 @@ trait ParboiledOpsExp extends BaseExp with ParboiledOps {
   case class StringLiteral(str: Rep[String]) extends Def[Rule]
   case class Sequence(lhs: Rep[Rule], rhs: Rep[Rule]) extends Def[Rule]
   case class FirstOf(lhs: Rep[Rule], rhs: Rep[Rule]) extends Def[Rule]
-  case class RuleCall(callingRuleName: Rep[String]) extends Def[Rule]
+  case class RuleCall(callingRuleName: Rep[String], params: Seq[Rep[Rule]] = Seq()) extends Def[Rule]
+  case class Parameter(name: Rep[String]) extends Def[Rule]
 
   def create_parser(name: Rep[String], rules: Seq[Rep[RuleDefinition]]): Rep[Parser] = ParserDef(name, rules)
   def infix_~(lhs: Rep[Rule], rhs: Rep[Rule]): Rep[Rule] = Sequence(lhs, rhs)

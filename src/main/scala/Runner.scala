@@ -14,7 +14,7 @@ abstract class Runner extends ParboiledOpsExp {
 
       case FirstOf(lhs, rhs) => val cur = cursor; matchRule(lhs) || { cursor = cur; matchRule(rhs) }
 
-      case RuleCall(Const(callingRuleName)) =>
+      case RuleCall(Const(callingRuleName), args) =>
         optimizedParser.rules.find { case RuleDefinitionDef(Const(name), _, _) => callingRuleName == name } match {
           case Some(RuleDefinitionDef(_, _, body)) => matchRule(body)
           case None => throw new Exception("Undefined rule to call")
@@ -35,7 +35,7 @@ abstract class Runner extends ParboiledOpsExp {
     case StringLiteral(Const(str)) => s""""$str""""
     case Sequence(lhs, rhs) => s"(${print(lhs)} ~ ${print(rhs)})"
     case FirstOf(lhs, rhs) => s"(${print(lhs)} | ${print(rhs)})"
-    case RuleCall(Const(callingRuleName)) => s"$callingRuleName()"
+    case RuleCall(Const(callingRuleName), args) => s"$callingRuleName()"
   }
 
   def parserPseudoScala(): String = print(parser)

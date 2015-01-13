@@ -10,22 +10,22 @@ abstract class RunnerOptInliner extends Runner {
       def inlineRules(r: Rep[Rule]): Rep[Rule] = r match {
         case Sequence(lhs, rhs) =>
           val lhsN = lhs match {
-            case RuleCall(Const(lhsName)) => inlineableRules.getOrElse(lhsName, inlineRules(lhs))
+            case RuleCall(Const(lhsName), args) => inlineableRules.getOrElse(lhsName, inlineRules(lhs))
             case l => inlineRules(l)
           }
           val rhsN = rhs match {
-            case RuleCall(Const(rhsName)) => inlineableRules.getOrElse(rhsName, inlineRules(rhs))
+            case RuleCall(Const(rhsName), args) => inlineableRules.getOrElse(rhsName, inlineRules(rhs))
             case l => inlineRules(l)
           }
           Sequence(lhsN, rhsN)
 
         case FirstOf(lhs, rhs) =>
           val lhsN = lhs match {
-            case RuleCall(Const(lhsName)) => inlineableRules.getOrElse(lhsName, inlineRules(lhs))
+            case RuleCall(Const(lhsName), args) => inlineableRules.getOrElse(lhsName, inlineRules(lhs))
             case l => inlineRules(l)
           }
           val rhsN = rhs match {
-            case RuleCall(Const(rhsName)) => inlineableRules.getOrElse(rhsName, inlineRules(rhs))
+            case RuleCall(Const(rhsName), args) => inlineableRules.getOrElse(rhsName, inlineRules(rhs))
             case l => inlineRules(l)
           }
           FirstOf(lhsN, rhsN)
