@@ -16,7 +16,7 @@ class DeadRuleEliminationSpec extends RunnerOptDeadRuleElimination with WordSpec
   */
 
   val parser =
-    ParserDef("MultipleRulesParser", Seq(
+    ParserDef("DeadRuleElimination", Seq(
       RuleDefinitionDef("aa", Seq(), Sequence(Sequence(RuleCall("a"), RuleCall("b")), RuleCall("c"))),
       RuleDefinitionDef("a", Seq(), StringLiteral("a")),
       RuleDefinitionDef("b", Seq(), StringLiteral("b")),
@@ -30,7 +30,7 @@ class DeadRuleEliminationSpec extends RunnerOptDeadRuleElimination with WordSpec
   }
 
   "must drop dead rules" in { pending
-    optimizedParser mustBe ParserDef("RuleInliner", Seq(
+    optimizedParser mustBe ParserDef("DeadRuleElimination", Seq(
       RuleDefinitionDef("abc", Seq(), Sequence(Sequence(StringLiteral("a"), StringLiteral("b")), RuleCall("c"))),
       RuleDefinitionDef("c", Seq(), FirstOf(StringLiteral("c"), StringLiteral("d")))
     ))
