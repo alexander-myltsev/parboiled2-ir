@@ -34,7 +34,7 @@ abstract class Runner extends ParboiledOpsExp {
       s"def $name = rule { ${print(body)} }"
     case StringLiteral(Const(str)) => s""""$str""""
     case Sequence(lhs, rhs) => s"(${print(lhs)} ~ ${print(rhs)})"
-    case FirstOf(lhs, rhs) => s"(${print(lhs)} ~ ${print(rhs)})"
+    case FirstOf(lhs, rhs) => s"(${print(lhs)} | ${print(rhs)})"
     case RuleCall(Const(callingRuleName)) => s"$callingRuleName()"
   }
 

@@ -4,7 +4,7 @@ abstract class RunnerOptInliner extends Runner {
       case RuleDefinitionDef(_, _, sl: StringLiteral) => true
       case _ => false
     }.map { case rd @ RuleDefinitionDef(Const(name), _, body) => (name, body) }
-      .toMap
+     .toMap
 
     val inlinedRules = super.optimizedParser.rules.map { case rd @ RuleDefinitionDef(_, _, body) =>
       def inlineRules(r: Rep[Rule]): Rep[Rule] = r match {
